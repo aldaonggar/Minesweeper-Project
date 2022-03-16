@@ -418,7 +418,7 @@ public class GameModelTester {
             }
             @Override
             public void notifyFlagged(int x, int y) {
-                assertTrue("Opened Tile can't be flagged", false);
+                assertTrue("Opened model.Tile can't be flagged", false);
                 super.setInvoked();
             }            
         });

@@ -1,38 +1,41 @@
+package model;
+
 import model.AbstractTile;
 
 public class Tile extends AbstractTile {
-    private Boolean isFlagged;
-    private Boolean isExplosive;
-    private Boolean isOpened;
+    protected Boolean isFlagged = false;
+    protected Boolean isExplosive;
+    protected Boolean isOpened;
 
     @Override
     public boolean open() {
-        isOpened = true;
-        return isOpened;
+        this.isOpened = true;
+        return this.isOpened;
     }
 
     @Override
     public void flag() {
-        isFlagged = true;
+        this.isFlagged = true;
     }
 
     @Override
     public void unflag() {
-        isFlagged = false;
+        this.isFlagged = false;
     }
 
     @Override
     public boolean isFlagged() {
-        return isFlagged;
+        return this.isFlagged;
     }
 
     @Override
     public boolean isExplosive() {
-        return isExplosive;
+        return false;
     }
 
     @Override
     public boolean isOpened() {
-        return isOpened;
+        return this.isOpened;
     }
+
 }
