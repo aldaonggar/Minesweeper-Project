@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Timer;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -497,7 +499,7 @@ public class GameModelTester {
         }
 
         @Override
-        public void notifyTimeElapsedChanged(Duration newTimeLeft) {
+        public void notifyTimeElapsedChanged(int time) {
             setInvoked();
             assertTrue("This method shouldn't be invoked in this test", false);       
         }

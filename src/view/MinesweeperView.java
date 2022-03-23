@@ -4,17 +4,10 @@ import model.Difficulty;
 import model.PlayableMinesweeper;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 import javax.swing.plaf.DimensionUIResource;
 
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -47,9 +40,18 @@ public class MinesweeperView implements IGameStateNotifier {
     private JPanel flagPanel = new JPanel();
     private JLabel timerView = new JLabel();
     private JLabel flagCountView = new JLabel();
+    int time = 0;
+
+    Timer t = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            notifyTimeElapsedChanged(time);
+            time++;
+        }
+    });
 
     public MinesweeperView() {
-        this.window = new JFrame("model.Minesweeper");
+        this.window = new JFrame("Minesweeper");
         timerPanel.setLayout(new FlowLayout());
         this.menuBar = new JMenuBar();
         this.gameMenu = new JMenu("New Game");
@@ -87,12 +89,12 @@ public class MinesweeperView implements IGameStateNotifier {
         }
         flagPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         try {
-            JLabel clockIcon = new JLabel(new ImageIcon(ImageIO.read(new File(AssetPath.FLAG_ICON))));
-            clockIcon.setSize(new DimensionUIResource(10, 10));
-            flagPanel.add(clockIcon);
+            JLabel flagIcon = new JLabel(new ImageIcon(ImageIO.read(new File(AssetPath.FLAG_ICON))));
+            flagIcon.setSize(new DimensionUIResource(10, 10));
+            flagPanel.add(flagIcon);
             flagPanel.add(new JLabel("FLAG: "));
             flagPanel.add(this.flagCountView);
-        } catch (IOException e) {
+        } catch (IOException e ) {
             System.out.println("Unable to locate flag resource");
         }
 
@@ -149,7 +151,9 @@ public class MinesweeperView implements IGameStateNotifier {
         this.flagCountView.setText("0");
         this.window.setSize(col * TILE_SIZE, row * TILE_SIZE + 30);
         this.world.removeAll();
-        
+        time = 0;
+        t.start();
+
         this.tiles = new TileView[row][col];
         for (int i=0; i<row; ++i) {
             for (int j=0; j<col; ++j) {
@@ -163,7 +167,7 @@ public class MinesweeperView implements IGameStateNotifier {
                         } 
                         else if (arg0.getButton() == MouseEvent.BUTTON3) {
                             if (gameModel!=null)
-                                gameModel.toggleFlag(temp.getPositionX(), temp.getPositionY());
+                                notifyFlagCountChanged(gameModel.toggleFlag(temp.getPositionX(), temp.getPositionY()));
                         } 
                     }
                 });
@@ -179,11 +183,15 @@ public class MinesweeperView implements IGameStateNotifier {
     @Override
     public void notifyGameLost() {
         this.removeAllTileEvents();
+        JFrame f = new JFrame();
+        JOptionPane.showMessageDialog(f,"YOU LOST, FOOL!" + '\n' + "What a shame.");
         throw new UnsupportedOperationException();
     }
     @Override
     public void notifyGameWon() {
         this.removeAllTileEvents();
+        JFrame f = new JFrame();
+        JOptionPane.showMessageDialog(f,"YOU WON, CONGRATULATIONS!" + '\n' + "Now get back to work.");
         throw new UnsupportedOperationException();
     }
 
@@ -199,10 +207,8 @@ public class MinesweeperView implements IGameStateNotifier {
     }
 
     @Override
-    public void notifyTimeElapsedChanged(Duration newTimeElapsed) {
-        timerView.setText(
-                    String.format("%d:%02d", newTimeElapsed.toMinutesPart(), newTimeElapsed.toSecondsPart()));  
-        
+    public void notifyTimeElapsedChanged(int time) {
+        timerView.setText(String.format("0%d:%02d", time/60, time%60));
     }
 
     @Override

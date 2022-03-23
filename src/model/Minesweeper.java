@@ -1,15 +1,14 @@
 package model;
 
-import model.AbstractMineSweeper;
-import model.AbstractTile;
-import model.Difficulty;
 
 import java.util.Random;
+import java.util.Timer;
 
 public class Minesweeper extends AbstractMineSweeper {
     //protected int row, col, explosionCount;
     protected AbstractTile[][] world;
     protected boolean firstTile=true;
+    protected int flagCount = 0;
 
     @Override
     public int getWidth() {
@@ -57,11 +56,17 @@ public class Minesweeper extends AbstractMineSweeper {
     }
 
     @Override
-    public void toggleFlag(int x, int y) {
-        if (getTile(x, y).isFlagged())
+    public int toggleFlag(int x, int y) {
+        if (getTile(x, y).isFlagged()) {
             getTile(x, y).unflag();
-        else
+            flagCount -= 1;
+            viewNotifier.notifyUnflagged(x, y);
+        } else {
             getTile(x, y).flag();
+            flagCount += 1;
+            viewNotifier.notifyFlagged(x, y);
+        }
+        return flagCount;
     }
 
     @Override
@@ -80,11 +85,11 @@ public class Minesweeper extends AbstractMineSweeper {
 
     @Override
     public void open(int x, int y) {
-        if(x >=0 && y>=0 && x<world.length && y<world[0].length){
+        if(x >= 0 && y >= 0 && x < world.length && y < world[0].length){
             if(firstTile && !world[x][y].isFlagged()){
                 deactivateFirstTileRule();
                 if(getTile(x,y).isExplosive()){
-                    world[x][y]= generateExplosiveTile();
+                    world[x][y]= generateEmptyTile();
                 }
                 world[x][y].open();
                 this.viewNotifier.notifyOpened(x,y,MinesAround(x,y));
@@ -100,24 +105,31 @@ public class Minesweeper extends AbstractMineSweeper {
                 this.viewNotifier.notifyOpened(x,y,MinesAround(x,y));
             }
         }
+
+        int isOpen = 0;
+        for(int i=0; i< world.length;i++){
+            for(int j=0; j<world[i].length;j++){
+               if (world[i][j].isOpened())
+                   isOpen++;
+            }
+        }
+        if(isOpen == (world.length * world[0].length))
+            viewNotifier.notifyGameWon();
     }
     @Override
     public void flag(int x, int y) {
-        if (!getTile(x, y).isOpened()) {
+        if (!getTile(x, y).isOpened())
             getTile(x, y).flag();
-            viewNotifier.notifyFlagged(x, y);
-        }
     }
 
     @Override
     public void unflag(int x, int y) {
-            getTile(x,y).unflag();
-            viewNotifier.notifyUnflagged(x,y);
+        getTile(x,y).unflag();
     }
 
     @Override
     public void deactivateFirstTileRule() {
-        this.firstTile=false;
+        this.firstTile = false;
     }
 
     @Override
@@ -133,36 +145,34 @@ public class Minesweeper extends AbstractMineSweeper {
     }
 
     public int MinesAround(int x, int y) {
-        int minesaround=0;
+        int minesAround=0;
         for(int i=0; i< world.length;i++){
-            for(int w=0; w<world[0].length;w++){
-                if(i==x && w==y-1 && world[i][w].isExplosive()){
-                    minesaround++;
-                }
-                if(i==x && w==y+1 && world[i][w].isExplosive()){
-                    minesaround++;
-                }
-                if(i==x-1 && w==y-1 && world[i][w].isExplosive()){
-                    minesaround++;
-                }
-                if(i==x-1 && w==y && world[i][w].isExplosive()){
-                    minesaround++;
-                }
-                if(i==x-1 && w==y+1 && world[i][w].isExplosive()){
-                    minesaround++;
-                }
-                if(i==x+1 && w==y-1 && world[i][w].isExplosive()){
-                    minesaround++;
-                }
-                if(i==x+1 && w==y && world[i][w].isExplosive()){
-                    minesaround++;
-                }
-                if(i==x+1 && w==y+1 && world[i][w].isExplosive()){
-                    minesaround++;
-                }
+            for(int j=0; j<world[i].length;j++){
+                if(i == y && j == x+1 && world[i][j].isExplosive())
+                    minesAround++;
+
+                if(i == y+1 && j == x && world[i][j].isExplosive())
+                    minesAround++;
+
+                if(i == y+1 && j == x+1 && world[i][j].isExplosive())
+                    minesAround++;
+
+                if(i == y && j == x-1 && world[i][j].isExplosive())
+                    minesAround++;
+
+                if(i == y-1 && j == x && world[i][j].isExplosive())
+                    minesAround++;
+
+                if(i == y-1 && j == x-1 && world[i][j].isExplosive())
+                    minesAround++;
+
+                if(i == y+1 && j == x-1 && world[i][j].isExplosive())
+                    minesAround++;
+
+                if(i == y-1 && j == x+1 && world[i][j].isExplosive())
+                    minesAround++;
             }
         }
-
-        return minesaround;
+        return minesAround;
     }
 }

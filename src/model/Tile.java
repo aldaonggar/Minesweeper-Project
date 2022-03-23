@@ -4,8 +4,7 @@ import model.AbstractTile;
 
 public class Tile extends AbstractTile {
     protected Boolean isFlagged = false;
-    protected Boolean isExplosive;
-    protected Boolean isOpened;
+    protected Boolean isOpened = false;
 
     @Override
     public boolean open() {
