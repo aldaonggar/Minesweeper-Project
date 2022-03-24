@@ -214,6 +214,7 @@ public class MinesweeperView implements IGameStateNotifier {
     @Override
     public void notifyOpened(int x, int y, int explosiveNeighbourCount) {
         this.tiles[y][x].notifyOpened(explosiveNeighbourCount);
+
     }
 
     @Override
